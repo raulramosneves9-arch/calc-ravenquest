@@ -45,7 +45,7 @@
               <th>QTD</th>
               <th>VALOR UNIT.</th>
               <th>TOTAL</th>
-              <th></th>
+              <th>AÇÕES</th>
             </tr>
           </thead>
           <tbody>
@@ -61,6 +61,9 @@
               <td class="td-price">{{ fmt(item.unitPrice) }}</td>
               <td class="td-total">{{ fmt(item.total) }}</td>
               <td class="td-action">
+                <button class="edit-btn" @click="startEdit(item.id)" title="Editar">
+                  Editar
+                </button>
                 <button class="remove-btn" @click="removeItem(item.id)" title="Remover">
                   <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
                     <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -88,7 +91,7 @@ import { onMounted } from 'vue'
 import { useItems } from '../composables/useItems.js'
 import ItemCardView from './ItemCardView.vue'
 
-const { items, grandTotal, removeItem, loadFromStorage, fmt } = useItems()
+const { items, grandTotal, removeItem, startEdit, loadFromStorage, fmt } = useItems()
 
 // Carrega dados persistidos ao montar a view
 onMounted(() => {
@@ -132,6 +135,10 @@ onMounted(() => {
   font-family: 'DM Mono', monospace;
   font-size: 11px;
   color: #555;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .grand-total strong {
@@ -210,7 +217,10 @@ thead th {
 }
 
 thead th:first-child { width: 40px; }
-thead th:last-child  { width: 48px; }
+thead th:last-child  {
+  width: 130px;
+  text-align: center;
+}
 
 /* Rows */
 .table-row {
@@ -259,7 +269,35 @@ td {
   font-size: 14px;
 }
 
-.td-action { text-align: center; }
+.td-action {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.edit-btn {
+  background: #13261b;
+  border: 1px solid #1f4d34;
+  border-radius: 8px;
+  height: 28px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #4ade80;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.edit-btn:hover {
+  background: #173223;
+  border-color: #4ade80;
+}
 
 .remove-btn {
   background: #161616;
@@ -288,8 +326,8 @@ tfoot tr {
   font-size: 9px;
   letter-spacing: 3px;
   color: #333;
-  text-align: right;
-  padding-right: 18px;
+  text-align: center;
+  padding-right: 0;
 }
 
 .tfoot-total {
@@ -297,5 +335,6 @@ tfoot tr {
   font-weight: 500;
   color: #4ade80;
   padding: 18px;
+  text-align: center;
 }
 </style>
