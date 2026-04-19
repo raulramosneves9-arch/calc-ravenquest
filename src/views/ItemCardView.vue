@@ -63,6 +63,10 @@ const hue = computed(() => (props.item.id % 360).toString())
   overflow: hidden;
   transition: transform 0.25s, box-shadow 0.3s;
   animation: cardIn 0.3s ease both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 @keyframes cardIn {
@@ -130,20 +134,23 @@ const hue = computed(() => (props.item.id % 360).toString())
   color: #e8e8e8;
   margin-bottom: 18px;
   line-height: 1.2;
-  padding-right: 28px;
+  padding: 0 28px;
   word-break: break-word;
+  text-align: center;
 }
 
 .card-stats {
   display: flex;
   gap: 14px;
   margin-bottom: 16px;
+  justify-content: center;
 }
 
 .stat {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  align-items: center;
 }
 
 .stat-label,
@@ -166,6 +173,8 @@ const hue = computed(() => (props.item.id % 360).toString())
   display: flex;
   flex-direction: column;
   gap: 4px;
+  align-items: center;
+  width: 100%;
 }
 
 .total-value {

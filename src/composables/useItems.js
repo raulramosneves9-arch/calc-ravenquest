@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 
 const STORAGE_KEY = 'price-items-v1'
 const items = ref([])
+const editingItemId = ref(null)
 
 function loadFromStorage() {
   try {
@@ -31,8 +32,39 @@ function addItem({ name, quantity, unitPrice }) {
   return item
 }
 
+function updateItem(id, { name, quantity, unitPrice }) {
+  const index = items.value.findIndex(i => i.id === id)
+  if (index === -1) return null
+
+  const updated = {
+    ...items.value[index],
+    name: name.trim(),
+    quantity: Number(quantity),
+    unitPrice: Number(unitPrice),
+    total: Number(quantity) * Number(unitPrice),
+    updatedAt: new Date().toISOString(),
+  }
+
+  items.value[index] = updated
+  saveToStorage()
+  return updated
+}
+
+function startEdit(id) {
+  editingItemId.value = id
+}
+
+function cancelEdit() {
+  editingItemId.value = null
+}
+
+const editingItem = computed(() =>
+  items.value.find(i => i.id === editingItemId.value) || null
+)
+
 function removeItem(id) {
   items.value = items.value.filter(i => i.id !== id)
+  if (editingItemId.value === id) editingItemId.value = null
   saveToStorage()
 }
 
@@ -80,5 +112,17 @@ function parseGameValue(str) {
 }
 
 export function useItems() {
-  return { items, grandTotal, addItem, removeItem, loadFromStorage, fmt, parseGameValue }
+  return {
+    items,
+    grandTotal,
+    editingItem,
+    addItem,
+    updateItem,
+    startEdit,
+    cancelEdit,
+    removeItem,
+    loadFromStorage,
+    fmt,
+    parseGameValue,
+  }
 }

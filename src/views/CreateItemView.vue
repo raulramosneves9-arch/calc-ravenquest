@@ -1,8 +1,8 @@
 <template>
   <form class="create-form" @submit.prevent="handleSubmit" novalidate>
     <div class="form-title">
-      <span class="form-title-icon">+</span>
-      NOVO ITEM
+      <span class="form-title-icon">{{ isEditing ? '✎' : '+' }}</span>
+      {{ isEditing ? 'EDITAR ITEM' : 'NOVO ITEM' }}
     </div>
 
     <!-- Nome do item -->
@@ -50,26 +50,43 @@
       <span class="preview-value">{{ fmt(previewTotal) }}</span>
     </div>
 
-    <button type="submit" class="submit-btn" :disabled="submitting">
-      {{ submitting ? 'ADICIONANDO…' : 'ADICIONAR ITEM' }}
-    </button>
+    <div class="form-actions">
+      <button
+        v-if="isEditing"
+        type="button"
+        class="cancel-btn"
+        @click="handleCancelEdit"
+      >
+        CANCELAR
+      </button>
+      <button type="submit" class="submit-btn" :disabled="submitting">
+        {{ submitLabel }}
+      </button>
+    </div>
 
     <transition name="fade">
-      <div class="success-toast" v-if="showSuccess">✓ Item adicionado!</div>
+      <div class="success-toast" v-if="showSuccess">✓ {{ successMessage }}</div>
     </transition>
   </form>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useItems } from '../composables/useItems.js'
 
-const { addItem, fmt, parseGameValue } = useItems()
+const { addItem, updateItem, editingItem, cancelEdit, fmt, parseGameValue } = useItems()
 
 const form = ref({ name: '', quantity: null, unitPriceRaw: '' })
 const errors = ref({ name: '', quantity: '', unitPrice: '' })
 const submitting = ref(false)
 const showSuccess = ref(false)
+const successMessage = ref('')
+
+const isEditing = computed(() => !!editingItem.value)
+const submitLabel = computed(() => {
+  if (submitting.value) return isEditing.value ? 'SALVANDO…' : 'ADICIONANDO…'
+  return isEditing.value ? 'SALVAR EDIÇÃO' : 'ADICIONAR ITEM'
+})
 
 const parsedUnitPrice = computed(() => parseGameValue(form.value.unitPriceRaw))
 
@@ -99,12 +116,39 @@ async function handleSubmit() {
   if (!validate()) return
   submitting.value = true
   await new Promise(r => setTimeout(r, 180))
-  addItem({ name: form.value.name, quantity: form.value.quantity, unitPrice: parsedUnitPrice.value })
+  if (isEditing.value) {
+    updateItem(editingItem.value.id, {
+      name: form.value.name,
+      quantity: form.value.quantity,
+      unitPrice: parsedUnitPrice.value,
+    })
+    successMessage.value = 'Item atualizado!'
+    cancelEdit()
+  } else {
+    addItem({ name: form.value.name, quantity: form.value.quantity, unitPrice: parsedUnitPrice.value })
+    successMessage.value = 'Item adicionado!'
+  }
   form.value = { name: '', quantity: null, unitPriceRaw: '' }
   submitting.value = false
   showSuccess.value = true
   setTimeout(() => showSuccess.value = false, 2500)
 }
+
+function handleCancelEdit() {
+  cancelEdit()
+  errors.value = { name: '', quantity: '', unitPrice: '' }
+  form.value = { name: '', quantity: null, unitPriceRaw: '' }
+}
+
+watch(editingItem, (item) => {
+  if (!item) return
+  form.value = {
+    name: item.name,
+    quantity: item.quantity,
+    unitPriceRaw: fmt(item.unitPrice),
+  }
+  errors.value = { name: '', quantity: '', unitPrice: '' }
+})
 </script>
 
 <style scoped>
@@ -249,6 +293,32 @@ input[type='number'] {
   font-weight: 500;
 }
 
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cancel-btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: transparent;
+  color: #777;
+  border: 1px solid #2b2b2b;
+  border-radius: 12px;
+  padding: 14px;
+  min-width: 108px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.cancel-btn:hover {
+  border-color: #666;
+  color: #bbb;
+  background: #1a1a1a;
+}
+
 .submit-btn {
   font-family: 'Outfit', sans-serif;
   font-size: 13px;
@@ -259,6 +329,7 @@ input[type='number'] {
   border: none;
   border-radius: 12px;
   padding: 14px;
+  width: 100%;
   cursor: pointer;
   transition: filter 0.15s, transform 0.1s, opacity 0.2s;
   box-shadow: 0 0 24px -6px #4ade80;
