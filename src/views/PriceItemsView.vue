@@ -74,9 +74,10 @@
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="4" class="tfoot-label">TOTAL GERAL</td>
-              <td class="tfoot-total">{{ fmt(grandTotal) }}</td>
-              <td></td>
+              <td colspan="6" class="tfoot-center">
+                <span class="tfoot-label">TOTAL GERAL</span>
+                <span class="tfoot-total">{{ fmt(grandTotal) }}</span>
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -323,18 +324,24 @@ tfoot tr {
 }
 
 .tfoot-label {
+  display: block;
   font-size: 9px;
   letter-spacing: 3px;
   color: #333;
   text-align: center;
-  padding-right: 0;
 }
 
 .tfoot-total {
+  display: block;
   font-size: 16px;
   font-weight: 500;
   color: #4ade80;
-  padding: 18px;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.tfoot-center {
+  padding: 18px 12px;
   text-align: center;
 }
 </style>
