@@ -10,23 +10,17 @@
     </header>
 
     <main class="app-main">
-      <CreateItemView />
-      <PriceItemsView />
+      <HomeView />
     </main>
   </div>
 </template>
 
 <script setup>
-import CreateItemView from './views/CreateItemView.vue'
-import PriceItemsView from './views/PriceItemsView.vue'
+import HomeView from './views/HomeView.vue'
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@400;600;700;800&display=swap');
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; background: #080808; color: #e0e0e0; }
-#app { min-height: 100vh; }
+@import './assets/base.css';
 
 .app {
   min-height: 100vh;
@@ -47,8 +41,8 @@ html, body { height: 100%; background: #080808; color: #e0e0e0; }
   opacity: 0.07;
 }
 
-.orb-green  { width: 600px; height: 600px; background: #4ade80; top: -200px; right: -200px; }
-.orb-teal   { width: 400px; height: 400px; background: #2dd4bf; bottom: -100px; left: -100px; }
+.orb-green { width: 600px; height: 600px; background: #4ade80; top: -200px; right: -200px; }
+.orb-teal  { width: 400px; height: 400px; background: #2dd4bf; bottom: -100px; left: -100px; }
 
 .app-header { position: relative; z-index: 1; }
 

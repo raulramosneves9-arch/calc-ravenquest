@@ -5,6 +5,19 @@ const STORAGE_KEY = 'price-items-v1'
 const items = ref([])
 const editingItemId = ref(null)
 
+export const CATEGORIES = [
+  'Armas',
+  'Equipamento',
+  'Equipamento de Profissão',
+  'Encantamentos',
+  'Consumíveis',
+  'Matérias-primas',
+  'Matérias Refinados',
+  'Transporte',
+  'Matérias de Cosméticos',
+  'Outros',
+]
+
 function loadFromStorage() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -18,13 +31,14 @@ function saveToStorage() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items.value))
 }
 
-function addItem({ name, quantity, unitPrice }) {
+function addItem({ name, quantity, unitPrice, category }) {
   const item = {
     id: Date.now(),
     name: name.trim(),
     quantity: Number(quantity),
     unitPrice: Number(unitPrice),
     total: Number(quantity) * Number(unitPrice),
+    category: category || 'Outros',
     createdAt: new Date().toISOString(),
   }
   items.value.unshift(item)
@@ -32,7 +46,7 @@ function addItem({ name, quantity, unitPrice }) {
   return item
 }
 
-function updateItem(id, { name, quantity, unitPrice }) {
+function updateItem(id, { name, quantity, unitPrice, category }) {
   const index = items.value.findIndex(i => i.id === id)
   if (index === -1) return null
 
@@ -42,6 +56,7 @@ function updateItem(id, { name, quantity, unitPrice }) {
     quantity: Number(quantity),
     unitPrice: Number(unitPrice),
     total: Number(quantity) * Number(unitPrice),
+    category: category || 'Outros',
     updatedAt: new Date().toISOString(),
   }
 
@@ -72,22 +87,12 @@ const grandTotal = computed(() =>
   items.value.reduce((sum, i) => sum + i.total, 0)
 )
 
-/**
- * Formata número no estilo de jogo:
- * < 1.000          → ex: 25, 300, 999
- * >= 1.000         → ex: 1K, 1,5K, 250K
- * >= 1.000.000     → ex: 1KK, 1,5KK, 250KK
- * >= 1.000.000.000 → ex: 1KKK, 2,5KKK
- */
 function fmt(value) {
   const n = Number(value)
   if (isNaN(n)) return '0'
 
-  // Formata o número com até 3 casas decimais, removendo zeros desnecessários
   function clean(num) {
-    // Arredonda para evitar 1.999999K
     const rounded = parseFloat(num.toFixed(3))
-    // Remove zeros à direita após o ponto
     return rounded.toString().replace('.', ',')
   }
 
@@ -97,10 +102,6 @@ function fmt(value) {
   return clean(n)
 }
 
-/**
- * Converte string de input de jogo para número real.
- * Aceita: "1K", "1,5KK", "1.5KK", "250K", "500", "2KKK"
- */
 function parseGameValue(str) {
   if (!str) return 0
   const s = str.trim().toUpperCase().replace(',', '.')
@@ -110,6 +111,8 @@ function parseGameValue(str) {
   if (s.endsWith('K')) return parseFloat(s) * 1_000
   return parseFloat(s) || 0
 }
+
+loadFromStorage()
 
 export function useItems() {
   return {
